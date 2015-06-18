@@ -1,0 +1,6 @@
+[submodule "trunk/modules/vimeo-tracker"]
+	path = trunk/modules/vimeo-tracker
+	url = https://github.com/jpw123/Vimeo-Tracker.git
+[submodule "trunk/modules/youtube-google-analytics"]
+	path = trunk/modules/youtube-google-analytics
+	url = https://github.com/lunametrics/youtube-google-analytics.git
