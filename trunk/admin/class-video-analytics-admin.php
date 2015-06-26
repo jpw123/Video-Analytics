@@ -51,6 +51,10 @@ class Video_Analytics_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		
+		//Add the Admin options menu item
+		add_action( 'admin_menu', array( $this, 'add_admin_menu') );
+		
 
 	}
 
@@ -99,5 +103,28 @@ class Video_Analytics_Admin {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/video-analytics-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
+	
+	/**
+	* Register the admin menu in the admin dashboard
+	*
+	* @since	1.0.0
+	*/
+	
+        public function add_admin_menu() {
+        
+            //Add the admin options page
+            add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', $this->plugin_name . '_admin_menu', array($this, 'display_admin_page'));
+        }
+	
+        /**
+         * Load the settings page for the plugin
+         * 
+         * @since 1.0.0
+         */
+        
+        public function display_admin_page() {
+            return;
+        }
+	
 
 }
