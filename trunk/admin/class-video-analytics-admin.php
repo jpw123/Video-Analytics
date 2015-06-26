@@ -51,10 +51,6 @@ class Video_Analytics_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		
-		//Add the Admin options menu item
-		add_action( 'admin_menu', array( $this, 'add_admin_menu') );
-		
 
 	}
 
@@ -104,6 +100,29 @@ class Video_Analytics_Admin {
 
 	}
 	
+        /**
+         * Register the settings fields and add them to the options page
+         * 
+         * @since 1.0.0
+         */
+        public function video_analytics_settings_init(){
+            
+            //Add Vimeo Settings
+            register_setting( 'vimeo-options', 'vimeo-switch' );
+            add_settings_section('vimeo-options', 'Vimeo Settings', '', 'video-analytics-options-page');
+            add_settings_field('vimeo-switch', 'Track Vimeo Videos', array($this, 'vimeo_switch' ), 'video-analytics-options-page', 'vimeo-options');
+            
+            
+            
+        }
+        
+        /**
+         * 
+         */
+        public function vimeo_switch(){
+            $setting = esc_attr( get_option( 'vimeo-switch' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-switch' value='1' />";
+        }
 	/**
 	* Register the admin menu in the admin dashboard
 	*
@@ -111,9 +130,8 @@ class Video_Analytics_Admin {
 	*/
 	
         public function add_admin_menu() {
-        
             //Add the admin options page
-            add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', $this->plugin_name . '_admin_menu', array($this, 'display_admin_page'));
+            add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', 'video-analytics-options-page', array($this, 'display_admin_page'));
         }
 	
         /**
@@ -123,8 +141,8 @@ class Video_Analytics_Admin {
          */
         
         public function display_admin_page() {
-            return;
+            //Include the admin view page
+            include_once('views/video-analytics-admin-display.php');
         }
-	
-
+        
 }

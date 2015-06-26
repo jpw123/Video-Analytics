@@ -9,8 +9,20 @@
  * @since      1.0.0
  *
  * @package    Video_Analytics
- * @subpackage Video_Analytics/admin/partials
+ * @subpackage Video_Analytics/admin/views
  */
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<div class="wrap">
+    <h2>Video Analytics Options</h2>
+    <form action="options.php" method="POST">
+    <?php
+        settings_fields( 'vimeo-options' );
+        do_settings_sections( 'video-analytics-options-page' );
+        submit_button();
+    ?>
+    </form>
+    <?php
+    
+    ?>
+</div>
