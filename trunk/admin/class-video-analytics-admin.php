@@ -14,7 +14,7 @@
  * The admin-specific functionality of the plugin.
  *
  * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the admin-specific stylesheet and JavaScript.
+ * enqueue the admin-specific styles heet and JavaScript.
  *
  * @package    Video_Analytics
  * @subpackage Video_Analytics/admin
@@ -62,6 +62,7 @@ class Video_Analytics_Admin {
 	public function enqueue_styles() {
 
 		/**
+                 * @todo Get rid of this if we are not using custom admin 
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
@@ -85,6 +86,7 @@ class Video_Analytics_Admin {
 	public function enqueue_scripts() {
 
 		/**
+                 * @todo Get rid of this if we are not using JS
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
@@ -106,23 +108,201 @@ class Video_Analytics_Admin {
          * @since 1.0.0
          */
         public function video_analytics_settings_init(){
-            
-            //Add Vimeo Settings
-            register_setting( 'vimeo-options', 'vimeo-switch' );
+            //Add General Settings Section
+            add_settings_section('general-options', 'General Settings', '', 'video-analytics-options-page');
+       
+            $settings = array(
+                array(
+                    "option_group" => 'general-options',
+                    "option_name" => 'content-switch',
+                    "add_field" => true,
+                    "title" => 'Filter Post Content',
+                    "callback" => array( $this, 'content_switch' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'general-options'
+                    ),
+                array(
+                    "option_group" => 'general-options',
+                    "option_name" => 'excerpt-switch',
+                    "add_field" => true,
+                    "title" => 'Filter Excerpt Content',
+                    "callback" => array( $this, 'excerpt_switch' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'general-options'
+                    ),
+                array(
+                    "option_group" => 'general-options',
+                    "option_name" => 'widgetText-switch',
+                    "add_field" => true,
+                    "title" => 'Filter Widget Content',
+                    "callback" => array( $this, 'widgetText_switch' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'general-options'
+                    ),
+            );
+            //Add Vimeo Settings Section
             add_settings_section('vimeo-options', 'Vimeo Settings', '', 'video-analytics-options-page');
-            add_settings_field('vimeo-switch', 'Track Vimeo Videos', array($this, 'vimeo_switch' ), 'video-analytics-options-page', 'vimeo-options');
             
+            $vimeoSettings = array(
+                array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-switch',
+                    "add_field" => true,
+                    "title" => 'Track Vimeo Videos',
+                    "callback" => array( $this, 'vimeo_switch' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+                array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-modFrame',
+                    "add_field" => true,
+                    "title" => 'Modify Vimeo Iframes',
+                    "callback" => array( $this, 'vimeo_modFrame' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+                array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-dataProgress',
+                    "add_field" => true,
+                    "title" => 'Track the Progress of Vimeo Videos',
+                    "callback" => array( $this, 'vimeo_dataProgress' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+                 array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-dataSeek',
+                    "add_field" => true,
+                    "title" => 'Track Skipping in Vimeo Videos',
+                    "callback" => array( $this, 'vimeo_dataSeek' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+                array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-dataBounce',
+                    "add_field" => true,
+                    "title" => 'Trigger Interactive Events',
+                    "callback" => array( $this, 'vimeo_dataBounce' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+                array(
+                    "option_group" => 'vimeo-options',
+                    "option_name" => 'vimeo-videoTitle',
+                    "add_field" => true,
+                    "title" => 'Use Iframe Title for Analytics Event',
+                    "callback" => array( $this, 'vimeo_videoTitle' ),
+                    'page' => 'video-analytics-options-page',
+                    'section' => 'vimeo-options'
+                    ),
+            );
             
+            $settings = array_merge($settings, $vimeoSettings);
+            
+            //Loop through the settings and fields
+            foreach ($settings as $setting) {
+                register_setting( $setting['option_group'], $setting['option_name'] );
+                //Add the field
+                if ($setting['add_field']) {
+                    add_settings_field( $setting['option_name'], $setting['title'], $setting['callback'], $setting['page'], $setting['section'] );
+                }
+            }
             
         }
         
         /**
+         * The vimeo switch field
          * 
+         * @since 1.0.0
          */
         public function vimeo_switch(){
             $setting = esc_attr( get_option( 'vimeo-switch' ) );
             echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-switch' value='1' />";
         }
+        
+        /**
+         * The vimeo mod frame field
+         * 
+         * @since 1.0.0
+         */
+        public function vimeo_modFrame(){
+            $setting = esc_attr( get_option( 'vimeo-modFrame' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-modFrame' value='1' />";
+        }
+        
+        /**
+         * The vimeo data progress field
+         * 
+         * @since 1.0.0
+         */
+        public function vimeo_dataProgress(){
+            $setting = esc_attr( get_option( 'vimeo-dataProgress' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-dataProgress' value='1' />";
+        }
+        
+        /**
+         * The vimeo data seek field
+         * 
+         * @since 1.0.0
+         */
+        public function vimeo_dataSeek(){
+            $setting = esc_attr( get_option( 'vimeo-dataSeek' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-dataSeek' value='1' />";
+        }
+        
+        /**
+         * The vimeo data bounce field
+         * 
+         * @since 1.0.0
+         */
+        public function vimeo_dataBounce(){
+            $setting = esc_attr( get_option( 'vimeo-dataBounce' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-dataBounce' value='1' />";
+        }
+        
+        /**
+         * The vimeo title field
+         * 
+         * @since 1.0.0
+         */
+        public function vimeo_videoTitle(){
+            $setting = esc_attr( get_option( 'vimeo-videoTitle' ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='vimeo-videoTitle' value='1' />";
+        }
+        
+        /**
+         * The content switch field
+         * 
+         * @since 1.0.0
+         */
+        public function content_switch() {
+            $setting = esc_attr( get_option( 'content-switch' , 1 ), true );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='content-switch' value='1' />";
+        }
+        
+        /**
+         * The excerpt switch field
+         * 
+         * @since 1.0.0
+         */
+        public function excerpt_switch() {
+            $setting = esc_attr( get_option( 'excerpt-switch' , 1 ), true );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='excerpt-switch' value='1' />";
+        }
+        
+        /**
+         * The widgetText switch field
+         * 
+         * @since 1.0.0
+         */
+        public function widgetText_switch() {
+            $setting = esc_attr( get_option( 'widgetText-switch' , 1 ) );
+            echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='widgetText-switch' value='1' />";
+        }
+        
 	/**
 	* Register the admin menu in the admin dashboard
 	*
@@ -133,7 +313,7 @@ class Video_Analytics_Admin {
             //Add the admin options page
             add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', 'video-analytics-options-page', array($this, 'display_admin_page'));
         }
-	
+            
         /**
          * Load the settings page for the plugin
          * 
@@ -144,5 +324,6 @@ class Video_Analytics_Admin {
             //Include the admin view page
             include_once('views/video-analytics-admin-display.php');
         }
+        
         
 }

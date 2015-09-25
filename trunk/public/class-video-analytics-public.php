@@ -50,7 +50,7 @@ class Video_Analytics_Public {
 	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version = $version;               
 
 	}
 
@@ -99,5 +99,39 @@ class Video_Analytics_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/video-analytics-public.js', array( 'jquery' ), $this->version, false );
 
 	}
+        
+        /**
+         * The function in charge of loading all the appropriate public filters for the Video Analytics Plugin.
+         * 
+         * @param mixed $content Output from Wordpress the_content()
+         * @since   1.0.0
+         */
+        public function video_analytics_actions_loader($content) {
+            
+            //Filter the excerpt code
+            if (get_option( 'excerpt-switch', false ) == 1 ){
+                add_filter( 'the_excerpt' , array($this, 'add_video_analytics_actions') );
+            }
+            //Filter the content code
+            if (get_option( 'content-switch', false ) == 1 ){
+                add_filter( 'the_content' , array($this, 'add_video_analytics_actions') );
+            }
+            //Filter widgets with iFrames that use the widget_text filter
+            if (get_option( 'widgetText-switch', false ) == 1){
+                add_filter( 'widget_text' , array($this, 'add_video_analytics_actions') );
+            }
+            
+        }
+        
+        /**
+         * The function in charge of loading Vimeo dependencies and the tracking scripts.
+         * 
+         * @since 1.0.0
+         */
+        private function vimeo_analytics(){
+            
+            
+            
+        }
 
 }
