@@ -109,35 +109,35 @@ class Video_Analytics_Admin {
          */
         public function video_analytics_settings_init(){
             //Add General Settings Section
-            add_settings_section('general-options', 'General Settings', '', 'video-analytics-options-page');
+            add_settings_section('video-general-options', 'General Settings', '', 'video-analytics-options-page');
        
             $settings = array(
                 array(
-                    "option_group" => 'general-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'content-switch',
                     "add_field" => true,
                     "title" => 'Filter Post Content',
                     "callback" => array( $this, 'content_switch' ),
                     'page' => 'video-analytics-options-page',
-                    'section' => 'general-options'
+                    'section' => 'video-general-options'
                     ),
                 array(
-                    "option_group" => 'general-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'excerpt-switch',
                     "add_field" => true,
                     "title" => 'Filter Excerpt Content',
                     "callback" => array( $this, 'excerpt_switch' ),
                     'page' => 'video-analytics-options-page',
-                    'section' => 'general-options'
+                    'section' => 'video-general-options'
                     ),
                 array(
-                    "option_group" => 'general-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'widgetText-switch',
                     "add_field" => true,
                     "title" => 'Filter Widget Content',
                     "callback" => array( $this, 'widgetText_switch' ),
                     'page' => 'video-analytics-options-page',
-                    'section' => 'general-options'
+                    'section' => 'video-general-options'
                     ),
             );
             //Add Vimeo Settings Section
@@ -145,7 +145,7 @@ class Video_Analytics_Admin {
             
             $vimeoSettings = array(
                 array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-switch',
                     "add_field" => true,
                     "title" => 'Track Vimeo Videos',
@@ -154,7 +154,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
                 array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-modFrame',
                     "add_field" => true,
                     "title" => 'Modify Vimeo Iframes',
@@ -163,7 +163,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
                 array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-dataProgress',
                     "add_field" => true,
                     "title" => 'Track the Progress of Vimeo Videos',
@@ -172,7 +172,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
                  array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-dataSeek',
                     "add_field" => true,
                     "title" => 'Track Skipping in Vimeo Videos',
@@ -181,7 +181,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
                 array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-dataBounce',
                     "add_field" => true,
                     "title" => 'Trigger Interactive Events',
@@ -190,7 +190,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
                 array(
-                    "option_group" => 'vimeo-options',
+                    "option_group" => 'video-options',
                     "option_name" => 'vimeo-videoTitle',
                     "add_field" => true,
                     "title" => 'Use Iframe Title for Analytics Event',
@@ -199,9 +199,7 @@ class Video_Analytics_Admin {
                     'section' => 'vimeo-options'
                     ),
             );
-            
             $settings = array_merge($settings, $vimeoSettings);
-            
             //Loop through the settings and fields
             foreach ($settings as $setting) {
                 register_setting( $setting['option_group'], $setting['option_name'] );
@@ -278,8 +276,9 @@ class Video_Analytics_Admin {
          * 
          * @since 1.0.0
          */
+    
         public function content_switch() {
-            $setting = esc_attr( get_option( 'content-switch' , 1 ), true );
+            $setting = esc_attr( get_option( 'content-switch' ) );
             echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='content-switch' value='1' />";
         }
         
@@ -289,7 +288,7 @@ class Video_Analytics_Admin {
          * @since 1.0.0
          */
         public function excerpt_switch() {
-            $setting = esc_attr( get_option( 'excerpt-switch' , 1 ), true );
+            $setting = esc_attr( get_option( 'excerpt-switch' ) );
             echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='excerpt-switch' value='1' />";
         }
         
@@ -299,7 +298,7 @@ class Video_Analytics_Admin {
          * @since 1.0.0
          */
         public function widgetText_switch() {
-            $setting = esc_attr( get_option( 'widgetText-switch' , 1 ) );
+            $setting = esc_attr( get_option( 'widgetText-switch' ) );
             echo "<input " . checked($setting, 1, false) .  " type='checkbox' name='widgetText-switch' value='1' />";
         }
         
@@ -311,7 +310,7 @@ class Video_Analytics_Admin {
 	
         public function add_admin_menu() {
             //Add the admin options page
-            add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', 'video-analytics-options-page', array($this, 'display_admin_page'));
+            add_options_page('Video Analytics Settings', 'Video Analytics', 'manage_options', 'video-analytics-options-page', array($this, 'display_admin_page'));        
         }
             
         /**

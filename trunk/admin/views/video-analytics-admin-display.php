@@ -17,8 +17,7 @@
     <h2>Video Analytics Options</h2>
     <form action="options.php" method="POST">
     <?php
-        settings_fields( 'general-options' );
-        settings_fields( 'vimeo-options' );
+        settings_fields( 'video-options' );
         do_settings_sections( 'video-analytics-options-page' );
         submit_button();
     ?>

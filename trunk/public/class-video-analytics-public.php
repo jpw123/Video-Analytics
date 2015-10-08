@@ -40,6 +40,33 @@ class Video_Analytics_Public {
 	 */
 	private $version;
 
+        /**
+	 * The class that handles all vimeo processing
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      Video_Analytics_Vimeo   $vimeo    Takes care of the vimeo stuff
+	 */
+	protected $vimeo;
+        
+        /**
+	 * The options for the plugin
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $settings    The settings pertinent to this portion of the plugin
+	 */
+	protected $settings;
+        
+        /**
+	 * The scripts for the plugin
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $scripts    The scripts pertinent to this portion of the plugin
+	 */
+	protected $scripts;
+        
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -50,7 +77,9 @@ class Video_Analytics_Public {
 	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;               
+		$this->version = $version;
+                
+                $this->set_options();
 
 	}
 
@@ -97,41 +126,138 @@ class Video_Analytics_Public {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/video-analytics-public.js', array( 'jquery' ), $this->version, false );
-
+                
+                //Add the scripts in the script array
+                foreach ($this->scripts as $script) {
+                    wp_enqueue_script($script['handle'], $script['src'], $script['deps'], $script['ver'], $script['in_footer']);
+                }
 	}
         
-        /**
-         * The function in charge of loading all the appropriate public filters for the Video Analytics Plugin.
-         * 
-         * @param mixed $content Output from Wordpress the_content()
-         * @since   1.0.0
-         */
-        public function video_analytics_actions_loader($content) {
-            
-            //Filter the excerpt code
-            if (get_option( 'excerpt-switch', false ) == 1 ){
-                add_filter( 'the_excerpt' , array($this, 'add_video_analytics_actions') );
-            }
-            //Filter the content code
-            if (get_option( 'content-switch', false ) == 1 ){
-                add_filter( 'the_content' , array($this, 'add_video_analytics_actions') );
-            }
-            //Filter widgets with iFrames that use the widget_text filter
-            if (get_option( 'widgetText-switch', false ) == 1){
-                add_filter( 'widget_text' , array($this, 'add_video_analytics_actions') );
-            }
-            
-        }
         
         /**
-         * The function in charge of loading Vimeo dependencies and the tracking scripts.
+         * The function in charge of calling general video functions.
          * 
          * @since 1.0.0
          */
-        private function vimeo_analytics(){
+        private function load_video_analytics_actions( $input ){
+            if (!empty( $input )) {
+                //Vimeo Loader
+                if (esc_attr(get_option( 'vimeo-switch' ) == 1)) {
+                    require_once 'class-video-analytics-vimeo.php';
+                    if (!isset($this->vimeo)) {
+                        $this->vimeo = new Video_Analytics_Vimeo( $this->plugin_name, $this->version, $this->settings );
+                    }
+                    
+                    //Overwrite input with output from Vimeo class.
+                    $output = $this->vimeo->run( $input );
+                    
+                }
+            }
             
+            if ($output['script']) {
+                $this->add_script($this->plugin_name, plugin_dir_url( __FILE__ ) . $output['script'], array( 'jquery' ), $this->version, true);
+            }
+            
+            return $output['input'];
+        }
+        
+        /**
+         * The handler function for the_content filter
+         * 
+         * @since 1.0.0
+         * @param mixed input The input from the_content.
+         * @todo RETURN THE MODIFIED CONTENT TO THE APPROPRIATE PLACE
+         */
+        public function add_video_analytics_content_actions( $input ){
+                        
+            return $this->load_video_analytics_actions( $input );  
             
             
         }
+        
+        /**
+         * The handler function for the_excerpt filter
+         * 
+         * @since 1.0.0
+         * @param mixed input The input from the_excerpt.
+         */
+        public function add_video_analytics_excerpt_actions( $input ){
+                        
+            return $this->load_video_analytics_actions( $input );
+            
+        }
+        
+        /**
+         * The handler function for widget_text filter
+         * 
+         * @since 1.0.0
+         * @param mixed input The input from widget_text.
+         */
+        public function add_video_analytics_widget_actions( $input ){
+                        
+           return $this->load_video_analytics_actions( $input );
+            
+        }
+        
+        /**
+	 * Gets the relevant options database and returns them in an array
+	 *
+	 * @since    1.0.0
+         * @return  $settings array( 'option-name' => 'option-setting')
+         * @TODO INVESTIGATE AUTOLOADING THESE BY OPTION GROUP
+	 */
+        public function get_options( $type ) {
+            
+            if ($type == 'all' || $type == 'vimeo') {
+                
+                $settings['vimeo'] = array(
+                'vimeo-modFrame' => esc_attr(get_option( 'vimeo-modframe' )),
+                'vimeo-dataProgress' => esc_attr(get_option( 'vimeo-dataProgress' )),
+                'vimeo-dataSeek' => esc_attr(get_option( 'vimeo-Dataseek' )),
+                'vimeo-dataBounce' => esc_attr(get_option( 'vimeo-dataBounce' )),
+                'vimeo-videoTitle' => esc_attr(get_option( 'vimeo-videoTitle' ))
+                );
+            }
+            
+            if ($type == 'all' || $type == 'youtube') {
+                
+            }
+            
+            if ($type == 'all' || $type == 'html5') {
+                
+            }
+            
+            return $settings;
+        }
+        
+        /**
+	 * Sets the $settings parameter from the options database by calling get_options(). Has an optional override to update and overwrite the settings.
+	 *
+         * 
+	 * @since    1.0.0
+         * @param optional $override Overwrite the current settings stored in the variable
+	 */
+        public function set_options( $overwrite = false) {
+            if ( $overwrite == true || !isset($this->settings)) {
+                $this->settings = $this->get_options();
+            }
+        }
+        
+        /**
+	 * Add a script to the loader for the public facing plugin
+         * 
+	 * @since    1.0.0
+         * @param follows the syntax of wp_enque_scripts
+	 */
+        public function add_script($handle, $src = false, array $deps, $ver = false, $in_footer = false) {
+            $this->scripts[] = array(
+                'handle' => $handle,
+                'src' => $src,
+                'deps' => $deps,
+                'ver' => $ver,
+                'in_footer' => $in_footer
+            );            
+        }
+        
 
 }

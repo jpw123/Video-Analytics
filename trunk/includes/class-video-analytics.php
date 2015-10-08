@@ -176,7 +176,17 @@ class Video_Analytics {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-                $this->loader->add_action( 'the_content' , $plugin_public , 'video_analytics_actions_loader' );
+                
+                if (esc_attr( get_option( 'excerpt-switch' ) == 1 )){
+                    $this->loader->add_filter( 'the_excerpt' , $plugin_public ,'add_video_analytics_excerpt_actions', 10 , 1 );
+                }
+                if (esc_attr( get_option( 'content-switch' ) == 1 )) {
+                    $this->loader->add_filter( 'the_content' , $plugin_public ,'add_video_analytics_content_actions', 10 , 1 );
+                }
+                if (get_option( 'widgetText-switch' ) == 1){
+                    $this->loader->add_filter( 'widget_text' , $plugin_public ,'add_video_analytics_widget_actions', 10 , 1 );
+                }
+                    
 	}
 
 	/**
